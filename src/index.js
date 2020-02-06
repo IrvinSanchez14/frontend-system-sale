@@ -6,15 +6,17 @@ import { Router } from 'react-router-dom';
 import history from './history';
 import store from './store';
 import './index.css';
-import App from './App';
+import Routes from 'containers/Routes';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(	<Provider store={store}>
-  <Router history={history}>
-    <App />
-  </Router>
-</Provider>,
-document.querySelector('#root'));
+ReactDOM.render(
+	<Provider store={store}>
+		<Router history={history}>
+			<Routes />
+		</Router>
+	</Provider>,
+	document.querySelector('#root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
