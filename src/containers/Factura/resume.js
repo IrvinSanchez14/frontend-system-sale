@@ -9,6 +9,10 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { FacturaClient } from 'services/logicServices';
+import { fetchInventario } from 'containers/Caja/Redux/actions';
+import { finishFactura } from 'containers/Factura/Redux/actions';
+
 const useStyles = makeStyles(theme => ({
 	paperResumen: {
 		padding: theme.spacing(2),
@@ -30,14 +34,39 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ResumenFactura(Props) {
-	const { tableInformation } = Props;
+	const { tableInformation, fetchInventario, finishFactura } = Props;
 	const classes = useStyles();
 
 	/*const subTotal = () => {
 		const precioTot
 	}*/
 
-	console.log('yyyyyy', tableInformation);
+	const sendFactura = () => {
+		let factura = new FacturaClient();
+
+		const iva = (
+			_.sumBy(tableInformation, 'total_obj') -
+			_.sumBy(tableInformation, 'total_obj') / 1.13
+		).toFixed(2);
+		const headerFactura = {
+			valor_venta: _.sumBy(tableInformation, 'total_obj').toFixed(2),
+			valor_iva: iva,
+			no_factura: '45963',
+			usuario_id: 1,
+			sucursal_id: 7,
+			tipo_pago_id: 1,
+		};
+
+		factura.createHeader(headerFactura).then(response => {
+			factura
+				.createSalidaDetalle(response.data[0].id, 1, tableInformation)
+				.then(sd => {
+					console.log('xxxxxxxxxxxx', sd);
+					fetchInventario();
+					finishFactura();
+				});
+		});
+	};
 
 	return (
 		<Paper className={classes.paperResumen}>
@@ -194,12 +223,18 @@ function ResumenFactura(Props) {
 			<Button
 				className={classes.btnFinalizar}
 				variant="contained"
-				color="primary">
+				color="primary"
+				onClick={() => sendFactura()}>
 				FINALIZAR
 			</Button>
 		</Paper>
 	);
 }
+
+const actions = {
+	fetchInventario,
+	finishFactura,
+};
 
 export function mapStateToProps(state) {
 	const { tableInformation } = state.Factura;
@@ -208,4 +243,4 @@ export function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps, null)(ResumenFactura);
+export default connect(mapStateToProps, actions)(ResumenFactura);

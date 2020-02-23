@@ -45,7 +45,6 @@ function TablaFactura(Props) {
 	const removeItem = index => {
 		alert(index);
 		_.pullAt(tableInformation, index);
-		console.log(tableInformation);
 		removeObject(index);
 	};
 
@@ -108,7 +107,6 @@ const actions = {
 };
 
 export function mapStateToProps(state) {
-	console.log('stateeeeeeee', state);
 	const { tableInformation } = state.Factura;
 	return {
 		tableInformation,

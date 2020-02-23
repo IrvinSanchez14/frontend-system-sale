@@ -37,7 +37,7 @@ export class CompraDetallesClient {
 	createCompraDetalle(detalle) {
 		let url = this.baseURL + '/compra_detalles';
 		let options = {
-			method: 'GET',
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: this.token,
@@ -74,7 +74,7 @@ export class ProductClient {
 	createProduct(producto) {
 		let url = this.baseURL + '/productos';
 		let options = {
-			method: 'GET',
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: this.token,
@@ -90,7 +90,7 @@ export class ProductClient {
 		let url = this.baseURL + '/productos/{id}';
 		url = url.replace('{id}', encodeURIComponent('' + id_producto));
 		let options = {
-			method: 'GET',
+			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: this.token,
@@ -122,5 +122,49 @@ export class InventarioSucursal {
 		};
 
 		return axios.get(url, options);
+	}
+}
+
+export class FacturaClient {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	createHeader(header) {
+		let url = this.baseURL + '/salidas_productos';
+		let options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, header, {
+			headers: options,
+		});
+	}
+
+	createSalidaDetalle(id_salida, id_inventario, detalles) {
+		let url =
+			this.baseURL + '/salidas_productos/{id_salida}/transaccion_ventas';
+		url = url.replace('{id_salida}', encodeURIComponent('' + id_salida));
+		url = url.replace(
+			'{id_inventario}',
+			encodeURIComponent('' + id_inventario)
+		);
+		let options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, detalles, {
+			headers: options,
+		});
 	}
 }

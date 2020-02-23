@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -10,7 +11,6 @@ import Autocomplete, {
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
-import { InventarioSucursal } from 'services/logicServices';
 import ErrorMessage from 'components/Error';
 import { APP_ERRORS } from 'texts/systemText';
 import { createObjectTable } from './Redux/actions';
@@ -63,52 +63,36 @@ const CssTextField = withStyles({
 })(TextField);
 
 function HeaderFactura(Props) {
-	const { createObjectTable } = Props;
+	const { createObjectTable, data, loading } = Props;
 	const classes = useStyles();
 	const [value, setValue] = useState('');
-	const [dataFinder, setDataFinder] = useState([]);
-	const [loading, setLoading] = React.useState(false);
 	const [objectToTable, setObjectToTable] = useState([]);
 	const [cantidadVenta, setCantidadVenta] = useState(0);
 
 	const x = [];
 
-	useEffect(() => {
-		async function loadData() {
-			try {
-				let inventario = new InventarioSucursal();
-				await inventario.getInventarioSucursal(7).then(response => {
-					response.data.forEach(data => {
-						setDataFinder(data.registro);
-					});
-					setLoading(true);
-				});
-			} catch (error) {
-				console.log(error);
-				//setErrorMessage(error.message);
-				//setOpen(true);
-			}
-		}
-
-		loadData();
-	}, []);
+	useEffect(() => {}, []);
 
 	const loadList = () => {
-		dataFinder &&
-			dataFinder.forEach(df => {
-				df.inventario.forEach(inv => {
-					const information = {
-						nombre_producto: inv.producto.nombre,
-						cantidad: inv.cantidad,
-						precio_sugerido: inv.precio_sugerido,
-						producto_id: inv.producto_id,
-						registro: inv.registro_id,
-						lote: `00${inv.registro_id}`,
-						combobox: `${inv.producto.nombre} Cantidad: ${inv.cantidad} Lote: 00${inv.registro_id}`,
-					};
-					x.push(information);
+		if (!_.isEmpty(data)) {
+			data.forEach(d => {
+				d.registro.forEach(dr => {
+					dr.inventario.forEach(inv => {
+						const information = {
+							nombre_producto: inv.producto.nombre,
+							cantidad: inv.cantidad,
+							precio_sugerido: inv.precio_sugerido,
+							producto_id: inv.producto_id,
+							registro: inv.registro_id,
+							lote: `00${inv.registro_id}`,
+							combobox: `${inv.producto.nombre} Cantidad: ${inv.cantidad} Lote: 00${inv.registro_id}`,
+							inventario_id: inv.id,
+						};
+						x.push(information);
+					});
 				});
 			});
+		}
 	};
 
 	loadList();
@@ -117,7 +101,12 @@ function HeaderFactura(Props) {
 		value.cantidad_venta = parseInt(cantidadVenta);
 		value.total_obj =
 			parseFloat(value.precio_sugerido) * parseInt(cantidadVenta);
-		console.log('value', value);
+		value.cantidad_anterior = value.cantidad;
+		value.cantidad_vendida = parseInt(cantidadVenta);
+		value.cantidad_nueva = parseInt(value.cantidad) - parseInt(cantidadVenta);
+		value.precio_original = value.precio_sugerido;
+		value.precio_grabado = value.precio_sugerido;
+
 		setObjectToTable(prev => [...prev, value]);
 		createObjectTable(value);
 		setValue('');
@@ -232,4 +221,11 @@ const actions = {
 	createObjectTable,
 };
 
-export default connect(null, actions)(HeaderFactura);
+export function mapStateToProps(state) {
+	const { loading } = state.Caja;
+	return {
+		loading,
+	};
+}
+
+export default connect(mapStateToProps, actions)(HeaderFactura);

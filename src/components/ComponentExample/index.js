@@ -129,7 +129,6 @@ function ExampleComponent() {
 			...obj,
 			compra_id: id,
 		}));
-		console.log('newObjectDetalles', newObjectDetalles);
 		detalles.createCompraDetalle(newObjectDetalles).then(r => {
 			console.log('finalizo', r);
 		});

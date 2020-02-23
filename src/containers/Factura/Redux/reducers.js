@@ -5,8 +5,6 @@ const initialState = {
 };
 
 export default function(state = initialState, action) {
-	console.log('REDUCER', state);
-	console.log('REDUCER ACTION', action);
 	switch (action.type) {
 		case ACTIONS.CREATE_OBJECT_TABLE: {
 			return {
@@ -18,6 +16,12 @@ export default function(state = initialState, action) {
 			return {
 				...state,
 				tableInformation: state.tableInformation.slice(0, action.index),
+			};
+		}
+		case ACTIONS.FINISH_FACTURA_CLIENT: {
+			return {
+				...state,
+				tableInformation: [],
 			};
 		}
 		default:

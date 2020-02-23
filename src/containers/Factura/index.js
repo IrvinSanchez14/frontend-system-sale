@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
@@ -24,14 +25,15 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-function Factura() {
+function Factura(Props) {
+	const { inventarioData } = Props;
 	const classes = useStyles();
 
 	return (
 		<div className={classes.root}>
 			<div>
 				<Grid container spacing={3}>
-					<HeaderFactura />
+					<HeaderFactura data={inventarioData} />
 					<Grid item xs={12}>
 						<TablaFactura />
 					</Grid>
@@ -59,4 +61,11 @@ function Factura() {
 	);
 }
 
-export default Factura;
+export function mapStateToProps(state) {
+	const { inventarioData } = state.Caja;
+	return {
+		inventarioData,
+	};
+}
+
+export default connect(mapStateToProps, null)(Factura);

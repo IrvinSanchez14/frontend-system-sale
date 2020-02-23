@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import HistoryIcon from '@material-ui/icons/History';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+
 import Factura from 'containers/Factura';
 import Historial from 'containers/Historial';
+import { fetchInventario } from './Redux/actions';
 
-function Caja() {
+function Caja(Props) {
+	const { fetchInventario } = Props;
 	const [value, setValue] = React.useState(0);
 
 	const handleChange = (event, newValue) => {
 		setValue(newValue);
 	};
+
+	useEffect(() => {
+		fetchInventario();
+	}, [fetchInventario]);
 
 	const renderComponent = () => {
 		switch (value) {
@@ -41,4 +50,8 @@ function Caja() {
 	);
 }
 
-export default Caja;
+const actions = {
+	fetchInventario,
+};
+
+export default connect(null, actions)(Caja);
