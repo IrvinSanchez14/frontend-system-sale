@@ -2,7 +2,53 @@ import axios from 'axios';
 
 const baseURL = 'http://127.0.0.1:8000/api';
 const token =
-	'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNDE4Y2Q5ODAxYmY5M2RlZTcyYTNhMDVmNjUyY2FlYzFkMTBkOWU0MzViYmZiNDYxZDg0NTNiYmIyOWVhMTIwZWFkMzk2MjZiMWMxODY4ZTAiLCJpYXQiOjE1ODA4NDY3NjMsIm5iZiI6MTU4MDg0Njc2MywiZXhwIjoxNjEyNDY5MTYzLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.VCgGP3BNQ3wNKdNu-ArWHYeFKkOX8iuTKaFQ67luRy9-EFDSq-biVKRNGfU9BeHNd7KKdKDLGi8s1jmZF5nyOsKLV68gJ_nRSx4I3a3yvMSGB_Jk_6xjbqFK3GAYgs4fY40nlq6Vv4YDBSooSbsggnWX4TxU8ozYNGkwRtR5ux_cFyYX9me3OyvV2M6FOOVPnGtBEgHzlqQMWoeP-OO9v7GHYE9PUm5kxgxMMbwnbN0ikJ4LQrretCsgaOQPwMT1_4TWXRBvRLKiq8hwmHHNM_nlZjnwKqs7aOSUoBXoCAue2dtyy3d8mkWgPmdiDIZd17RcPzazVv54iU9wOUrwvQCB8rNZivgLvT58Bzwn_W0-WwPmlX9nL2whaR-MIy93yCUmXp4CSc1dHCXKOxvA50R5Su2lTGsXqCYc1SDg5SOcOxa_OdPAaobFi0BVNn3utdjAYpi9dz05czzdMgVFH2lh_z6pl5qgKBwOtVCQC8Wo-W_x9-2q3u2KDpaQaYy-C4JmFEJVB6v1JB8RlcjvnPEDGkTDDIAMCUrLXUGJOT6hIFQLH5qW4hFSzFfBUfxgyK3iuib55CiCulunLET_QWH-j4PBtCxIOinl__hfXLi4WJb5qjgV27XENIhy6Cl5dbw7Dqpxe0QOuGeJVlXI7tMwMDYvUc8g3G3TZTsynP8';
+	'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiNWMyMGU5M2EzNjVmNWE3MGU2ODUyYmViOWJhNGYwMDIzODhjMzRlYzlmMWY4ZDI2NThlNjQ0MzUwMGVlMWMxMDIwY2U1MmQzZTdkNTNjMTMiLCJpYXQiOjE1ODIxNDIxNDYsIm5iZiI6MTU4MjE0MjE0NiwiZXhwIjoxNjEzNzY0NTQ1LCJzdWIiOiIxMDAyIiwic2NvcGVzIjpbXX0.pMtqWVHZ_xS9kvPfkYTsYMuZpYmX1CrF5PvQftnphsykjBHpylvunqXRtiOoIouxHM1JQnGlWZCalfSE32epnQfPu7Xsufd90JGwg6SLU5-e3a2Lv_VNdJgeB87b3drRvVBx959k4Dif53TgjuBvVb6ub_vUa00XZpgreeTlWGda_9pmlpHUuiAk9FT82esq80ZAiQZm478FSG0aWMsEdNBUhVpyNgMa1FSrbiDCtTWmuBuJrDKkPeymWd70WkhJDP97aWGl4C7C4Vzt96TcJBDzk5YrvjQ4ZF5qB7FjkEYZQEzAXXNhYPIzOAtFBBbh5zaHfilqBbbhGE7hSVQysEkMxXi6aw3vkCwanwZbU14zg93_HeMIv2choDYWM3D-3lWiWss19kugJTdloWJvnW66tDS5ISC6vfP3-DSystnLWgZIMhFGYSvEf_Mk3Q22WI5parpRLA4RW2GACnoxtsXN9imSHYZXgEYkOzmBkfIcxJW-bWGeNlzcObbkrnCdXMrHqGREnEZFSAwTRO38GpdF-_oNxE6zns60zNGn-deX5dcq51KSEShpNONnGr9n68fXb0CQ91C3W5CQBCJ7qoo-LcdL0Ny3XNaAOtnuyy_elfC-CXc3GKOzgXejG8XSqHcZzJvVHpQYiyegTY3WftiRQfHLPBd7gNeStl8qqxY';
+
+export class ComprasClient {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	createCompra(compra) {
+		let url = this.baseURL + '/compras';
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, compra, {
+			headers: options,
+		});
+	}
+}
+
+export class CompraDetallesClient {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	createCompraDetalle(detalle) {
+		let url = this.baseURL + '/compra_detalles';
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, detalle, {
+			headers: options,
+		});
+	}
+}
 
 export class ProductClient {
 	constructor(http) {
@@ -18,7 +64,7 @@ export class ProductClient {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				//Authorization: this.token,
+				Authorization: this.token,
 			},
 		};
 
@@ -27,7 +73,6 @@ export class ProductClient {
 
 	createProduct(producto) {
 		let url = this.baseURL + '/productos';
-		//url_ = url.replace('{id}', encodeURIComponent('' + id_producto));
 		let options = {
 			method: 'GET',
 			headers: {
@@ -39,5 +84,43 @@ export class ProductClient {
 		return axios.post(url, producto, {
 			headers: options,
 		});
+	}
+
+	updateProduct(id_producto, producto) {
+		let url = this.baseURL + '/productos/{id}';
+		url = url.replace('{id}', encodeURIComponent('' + id_producto));
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.put(url, producto, {
+			headers: options,
+		});
+	}
+}
+
+export class InventarioSucursal {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	getInventarioSucursal(id_sucursal) {
+		let url = this.baseURL + '/sucursales/{id_sucursal}/inventario_sucursal';
+		url = url.replace('{id_sucursal}', encodeURIComponent('' + id_sucursal));
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.get(url, options);
 	}
 }

@@ -3,7 +3,9 @@ import { Route, Switch } from 'react-router-dom';
 import Header from 'containers/Header';
 import FormAddProducto from 'containers/Productos/FormularioProductos';
 import Productos from 'containers/Productos';
-import SnackBar from 'components/SnackBar';
+//import SnackBar from 'components/SnackBar';
+import ExampleComponent from 'components/ComponentExample';
+import Caja from 'containers/Caja';
 
 const Routes = () => {
 	return (
@@ -12,8 +14,10 @@ const Routes = () => {
 				children={
 					<Switch>
 						<Route path="/Productos" exact component={Productos} />
-						<Route path="/" exact component={SnackBar} />
+						<Route path="/" exact component={Productos} />
 						<Route path="/testFormularios" exact component={FormAddProducto} />
+						<Route path="/ejemplos" exact component={ExampleComponent} />
+						<Route path="/Caja" exact component={Caja} />
 					</Switch>
 				}
 			/>

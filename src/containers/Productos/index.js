@@ -1,5 +1,4 @@
-import React from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
 import MUIDataTable from 'mui-datatables';
 import CustomToolbarSelect from './CustomFooter';
 import { ProductClient } from 'services/logicServices';
@@ -16,237 +15,222 @@ import ErrorMessage from 'components/Error';
 import { APP_ERRORS, APP_TABLAS } from 'texts/systemText';
 import SnackBar from 'components/SnackBar';
 
-export default class Productos extends React.Component {
-	constructor(props) {
-		super(props);
+function Productos(props) {
+	const [ data, setData ] = React.useState([]);
+	const [ loading, setLoading ] = React.useState(false);
+	const [ changeData, setChangeData ] = React.useState(false);
+	const [ positionRow, setPositionRow ] = React.useState(0);
+	const [ errorMessage, setErrorMessage ] = React.useState('');
+	const [ open, setOpen ] = React.useState(false);
 
-		this.state = {
-			data: [ [ 'Loading Data...' ] ],
-			loading: false,
-			changeData: false,
-			positionRow: 0,
-			prueba: false,
-			nombre: '',
-			errors: '',
-			errorMessage: '',
-			open: false,
-		};
-	}
-
-	async componentDidMount() {
-		try {
-			let productos = new ProductClient();
-			await productos.getProduct().then((response) => {
-				this.setState({ data: response.data, loading: true });
-			});
-		} catch (error) {
-			console.log(error.message);
-			this.setState({errorMessage:error.message, open:true})
-		}
-	}
-
-	activateEdit = (position) => {
-		alert('se activara');
-		this.setState({ changeData: true, positionRow: position });
-	};
-
-	handleChange(event, id) {
-		const { data } = this.state;
-		data[id].nombre = event.target.value;
-		this.setState({ data });
-	}
-
-	handleChangeChekBoc(event, id) {
-		const { data } = this.state;
-		data[id].status = event ? 'available' : 'unavailable';
-		this.setState({ data });
-	}
-
-	doneIcon(id) {
-		const { data } = this.state;
-		axios.put(`http://127.0.0.1:8000/api/productos/${data[id].id}`, data[id]).then((response) => {
-			if (response.status === 200) {
-				this.setState({ changeData: false });
+	useEffect(() => {
+		async function loadData() {
+			try {
+				let productos = new ProductClient();
+				await productos.getProduct().then((response) => {
+					setData(response.data);
+					setLoading(true);
+				});
+			} catch (error) {
+				setErrorMessage(error.message);
+				setOpen(true);
 			}
+		}
+
+		loadData();
+	}, []);
+
+	function activateEdit(position) {
+		setChangeData(true);
+		setPositionRow(position);
+	}
+
+	function handleChange(event, id) {
+		const newArray = [ ...data ];
+		newArray[id].nombre = event.target.value;
+
+		setData(newArray);
+	}
+
+	function handleChangeChekBoc(event, id) {
+		data[id].status = event ? 'available' : 'unavailable';
+		setData(data);
+	}
+
+	async function doneIcon(id) {
+		let productos = new ProductClient();
+		await productos.updateProduct(data[id].id, data[id]).then((response) => {
+			setChangeData(false);
 		});
 	}
 
-	render() {
-		const columns = [
-			{
-				label: 'Editar',
-				name: 'id',
-				options: {
-					filter: false,
-					sort: false,
-					empty: true,
-					customBodyRender: (value, tableMeta, updateValue) => {
-						return this.state.changeData && tableMeta.rowIndex === this.state.positionRow ? (
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-evenly',
-								}}>
-								<Tooltip title={'Guardar registro'}>
-									<IconButton
-										onClick={() => this.doneIcon(tableMeta.rowIndex)}
-										color="primary"
-										aria-label="delete">
-										<DoneIcon />
-									</IconButton>
-								</Tooltip>
+	const columns = [
+		{
+			label: 'Editar',
+			name: 'id',
+			options: {
+				filter: false,
+				sort: false,
+				empty: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return changeData && tableMeta.rowIndex === positionRow ? (
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-evenly',
+							}}>
+							<Tooltip title={'Guardar registro'}>
 								<IconButton
-									onClick={() => this.setState({ changeData: false })}
-									color="secondary"
+									onClick={() => doneIcon(tableMeta.rowIndex)}
+									color="primary"
 									aria-label="delete">
-									<CloseIcon />
+									<DoneIcon />
 								</IconButton>
-							</div>
-						) : (
-							<IconButton
-								onClick={() => this.activateEdit(tableMeta.rowIndex)}
-								aria-label="delete"
-								color="primary">
-								<BorderColorIcon />
+							</Tooltip>
+							<IconButton onClick={() => setChangeData(false)} color="secondary" aria-label="delete">
+								<CloseIcon />
 							</IconButton>
-						);
-					},
+						</div>
+					) : (
+						<IconButton
+							onClick={() => activateEdit(tableMeta.rowIndex)}
+							aria-label="delete"
+							color="primary">
+							<BorderColorIcon />
+						</IconButton>
+					);
 				},
 			},
-			{
-				label: 'Nombre',
-				name: 'nombre',
-				options: {
-					filter: false,
-					customBodyRender: (value, tableMeta, updateValue) =>
-						this.state.changeData && tableMeta.rowIndex === this.state.positionRow ? (
-							<FormControlLabel
-								value={value}
-								control={
-									<TextField
-										value={this.state.data[tableMeta.rowIndex].nombre}
-										onChange={(e) => {
-											this.handleChange(e, tableMeta.rowIndex);
-										}}
-									/>
-								}
-							/>
-						) : (
-							value
-						),
+		},
+		{
+			label: 'Nombre',
+			name: 'nombre',
+			options: {
+				filter: false,
+				customBodyRender: (value, tableMeta, updateValue) =>
+					changeData && tableMeta.rowIndex === positionRow ? (
+						<FormControlLabel
+							value={value}
+							control={
+								<TextField
+									value={data[tableMeta.rowIndex].nombre}
+									onChange={(e) => {
+										handleChange(e, tableMeta.rowIndex);
+									}}
+								/>
+							}
+						/>
+					) : (
+						value
+					),
+			},
+		},
+		{
+			label: 'Descripcion',
+			name: 'descripcion',
+			options: {
+				filter: true,
+			},
+		},
+		{
+			label: 'Precio de Compra',
+			name: 'precio_compra',
+			options: {
+				filter: false,
+			},
+		},
+		{
+			label: 'Precio Sugerido',
+			name: 'precio_sugerido',
+			options: {
+				filter: true,
+			},
+		},
+		{
+			label: 'Estado',
+			name: 'status',
+			options: {
+				filter: true,
+				customBodyRender: (value, tableMeta, updateValue) => {
+					return changeData && tableMeta.rowIndex === positionRow ? (
+						<FormControlLabel
+							label={data[tableMeta.rowIndex].status === 'available' ? `Activo` : `Inactivo`}
+							value={data[tableMeta.rowIndex].status ? 'Activo' : 'Inactivo'}
+							control={
+								<Switch
+									color="primary"
+									checked={data[tableMeta.rowIndex].status === 'available' ? true : false}
+									value={data[tableMeta.rowIndex].status}
+								/>
+							}
+							onChange={(event) => {
+								const checked = event.target.value === 'available' ? false : true;
+								handleChangeChekBoc(checked, tableMeta.rowIndex);
+								console.log('data[tableMeta.rowIndex].statu', data[tableMeta.rowIndex].status);
+								console.log(data[tableMeta.rowIndex]);
+							}}
+						/>
+					) : (
+						value
+					);
 				},
 			},
-			{
-				label: 'Descripcion',
-				name: 'descripcion',
-				options: {
-					filter: true,
-				},
-			},
-			{
-				label: 'Precio de Compra',
-				name: 'precio_compra',
-				options: {
-					filter: false,
-				},
-			},
-			{
-				label: 'Precio Sugerido',
-				name: 'precio_sugerido',
-				options: {
-					filter: true,
-				},
-			},
-			{
-				label: 'Estado',
-				name: 'status',
-				options: {
-					filter: true,
-					customBodyRender: (value, tableMeta, updateValue) => {
-						return this.state.changeData && tableMeta.rowIndex === this.state.positionRow ? (
-							<FormControlLabel
-								label={
-									this.state.data[tableMeta.rowIndex].status === 'available' ? `Activo` : `Inactivo`
-								}
-								value={this.state.data[tableMeta.rowIndex].status ? 'Activo' : 'Inactivo'}
-								control={
-									<Switch
-										color="primary"
-										checked={
-											this.state.data[tableMeta.rowIndex].status === 'available' ? true : false
-										}
-										value={this.state.data[tableMeta.rowIndex].status}
-									/>
-								}
-								onChange={(event) => {
-									const checked = event.target.value === 'available' ? false : true;
-									this.handleChangeChekBoc(checked, tableMeta.rowIndex);
+		},
+	];
 
-									/*this.setState({ prueba: !checked });*/
-								}}
-							/>
-						) : (
-							value
-						);
-					},
-				},
+	const options = {
+		pagination: false,
+		filter: true,
+		filterType: 'dropdown',
+		responsive: 'stacked',
+		textLabels: {
+			body: {
+				noMatch: 'Sorry we could not find any records!',
 			},
-		];
-
-		const options = {
-			pagination: false,
-			filter: true,
-			filterType: 'dropdown',
-			responsive: 'stacked',
-			textLabels: {
-				body: {
-					noMatch: 'Sorry we could not find any records!',
-				},
-				filter: {
-					all: 'Registros',
-					title: 'Filtros',
-					reset: 'Reset',
-				},
-				selectedRows: {
-					text: 'registro seleccionado para eliminar',
-					delete: 'Eliminar Registro',
-					deleteAria: 'Deleted Selected Rows',
-				},
-				pagination: {
-					next: 'siguiente pagina',
-					previous: 'pagina anterior',
-					rowsPerPage: 'Registros por Pagina:',
-					displayRows: 'of',
-				},
-				toolbar: {
-					search: 'Buscar',
-					downloadCsv: 'Descargar archivo CSV',
-					print: 'Imprimir',
-					viewColumns: 'Ver Columnas',
-					filterTable: 'Filtros de Tabla',
-				},
+			filter: {
+				all: 'Registros',
+				title: 'Filtros',
+				reset: 'Reset',
 			},
-			customToolbar: () => {
-				return <CustomToolbar />;
+			selectedRows: {
+				text: 'registro seleccionado para eliminar',
+				delete: 'Eliminar Registro',
+				deleteAria: 'Deleted Selected Rows',
 			},
-			customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-				<CustomToolbarSelect
-					selectedRows={selectedRows}
-					displayData={displayData}
-					setSelectedRows={setSelectedRows}
-				/>
-			),
-		};
-
-		return this.state.loading ? (
-			<MUIDataTable
-				title={APP_TABLAS.TABLA_PRODUCTO}
-				data={this.state.data}
-				columns={columns}
-				options={options}
+			pagination: {
+				next: 'siguiente pagina',
+				previous: 'pagina anterior',
+				rowsPerPage: 'Registros por Pagina:',
+				displayRows: 'of',
+			},
+			toolbar: {
+				search: 'Buscar',
+				downloadCsv: 'Descargar archivo CSV',
+				print: 'Imprimir',
+				viewColumns: 'Ver Columnas',
+				filterTable: 'Filtros de Tabla',
+			},
+		},
+		customToolbar: () => {
+			return <CustomToolbar />;
+		},
+		customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
+			<CustomToolbarSelect
+				selectedRows={selectedRows}
+				displayData={displayData}
+				setSelectedRows={setSelectedRows}
 			/>
-		) : (
-			<SnackBar message={this.state.errorMessage} type={'error'} open={this.state.open} />
-		);
-	}
+		),
+	};
+
+	return loading ? (
+		<MUIDataTable title={APP_TABLAS.TABLA_PRODUCTO} data={data} columns={columns} options={options} />
+	) : (
+		<div>
+			<ErrorMessage message={APP_ERRORS.NO_DATA} />
+			<SnackBar message={errorMessage} type={'error'} open={open} setOpen={setOpen} />
+		</div>
+	);
 }
+
+export default Productos;

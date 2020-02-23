@@ -25,7 +25,6 @@ function CustomToolbar(props) {
 			let productos = new ProductClient();
 			setButtonSave(false);
 			await productos.createProduct(objectData).then((response) => {
-				console.log('response', response);
 				setVisibleModal(false);
 			});
 		}
