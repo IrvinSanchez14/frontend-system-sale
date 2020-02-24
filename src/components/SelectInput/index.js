@@ -7,7 +7,12 @@ function SelectInput(Props) {
 	const { source, name, style, value, handleChange } = Props;
 
 	return (
-		<Select style={style} name={name} onChange={handleChange} value={value}>
+		<Select
+			variant="outlined"
+			style={style}
+			name={name}
+			onChange={handleChange}
+			value={value}>
 			<MenuItem value={0}>Selecciona item</MenuItem>
 			{source.map(item => {
 				return (

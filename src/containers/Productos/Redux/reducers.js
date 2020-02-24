@@ -1,24 +1,24 @@
 import * as ACTIONS from './constants';
 
 const initialState = {
-	inventarioData: [],
-	errorInventario: '',
+	productoData: [],
+	errorProducto: '',
 	loading: false,
 };
 
 export default function(state = initialState, action) {
 	switch (action.type) {
-		case ACTIONS.SET_INVENTARIO_DISPONIBLE_SUCCES: {
+		case ACTIONS.SET_PRODUCTOS_LIST_SUCCES: {
 			return {
 				...state,
-				inventarioData: action.response,
+				productoData: action.response,
 				loading: true,
 			};
 		}
-		case ACTIONS.SET_INVENTARIO_DISPONIBLE_FAIL: {
+		case ACTIONS.SET_PRODUCTOS_LIST_FAIL: {
 			return {
 				...state,
-				errorInventario: action.error,
+				errorProducto: action.error,
 				loading: true,
 			};
 		}
