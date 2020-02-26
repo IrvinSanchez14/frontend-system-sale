@@ -16,8 +16,8 @@ function SelectInput(Props) {
 			<MenuItem value={0}>Selecciona item</MenuItem>
 			{source.map(item => {
 				return (
-					<MenuItem key={item.value} value={item.value}>
-						{item.text}
+					<MenuItem key={item.id} value={item.id}>
+						{item.nombre}
 					</MenuItem>
 				);
 			})}

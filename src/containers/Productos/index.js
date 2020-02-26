@@ -1,36 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Fragment, useState } from 'react';
 import MUIDataTable from 'mui-datatables';
-import CustomToolbarSelect from './CustomFooter';
-import { ProductClient } from 'services/logicServices';
+import { connect } from 'react-redux';
+
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TextField from '@material-ui/core/TextField';
 import Switch from '@material-ui/core/Switch';
 import DoneIcon from '@material-ui/icons/Done';
 import CloseIcon from '@material-ui/icons/Close';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
-import CustomToolbar from './CustomToolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+
 import ErrorMessage from 'components/Error';
 import { APP_ERRORS, APP_TABLAS } from 'texts/systemText';
 import SnackBar from 'components/SnackBar';
+import CustomToolbarSelect from './CustomFooter';
+import CustomToolbar from './CustomToolbar';
+import {
+	fetchProductos,
+	editProductosStatus,
+	editProductosNombre,
+	editProductosDescripcion,
+	updateProductos,
+} from './Redux/actions';
+import { fetchCategorias } from 'containers/Categoria/Redux/actions';
 
-function Productos(props) {
-	const [ data, setData ] = React.useState([]);
-	const [ loading, setLoading ] = React.useState(false);
-	const [ changeData, setChangeData ] = React.useState(false);
-	const [ positionRow, setPositionRow ] = React.useState(0);
-	const [ errorMessage, setErrorMessage ] = React.useState('');
-	const [ open, setOpen ] = React.useState(false);
+function Productos(Props) {
+	const {
+		fetchProductos,
+		productoData,
+		loading,
+		fetchCategorias,
+		editProductosStatus,
+		editProductosNombre,
+		editProductosDescripcion,
+		updateProductos,
+	} = Props;
+	const [changeData, setChangeData] = React.useState(false);
+	const [positionRow, setPositionRow] = React.useState(0);
+	const [errorMessage, setErrorMessage] = React.useState('');
+	const [open, setOpen] = React.useState(false);
+	const [typeToast, setTypeToast] = useState('');
 
 	useEffect(() => {
 		async function loadData() {
 			try {
-				let productos = new ProductClient();
-				await productos.getProduct().then((response) => {
-					setData(response.data);
-					setLoading(true);
-				});
+				fetchProductos();
+				fetchCategorias();
 			} catch (error) {
 				setErrorMessage(error.message);
 				setOpen(true);
@@ -38,7 +54,7 @@ function Productos(props) {
 		}
 
 		loadData();
-	}, []);
+	}, [fetchProductos, fetchCategorias]);
 
 	function activateEdit(position) {
 		setChangeData(true);
@@ -46,22 +62,23 @@ function Productos(props) {
 	}
 
 	function handleChange(event, id) {
-		const newArray = [ ...data ];
-		newArray[id].nombre = event.target.value;
+		editProductosNombre(event.target.value, id);
+	}
 
-		setData(newArray);
+	function handleChangeDescripcion(event, id) {
+		editProductosDescripcion(event.target.value, id);
 	}
 
 	function handleChangeChekBoc(event, id) {
-		data[id].status = event ? 'available' : 'unavailable';
-		setData(data);
+		editProductosStatus(event ? 'disponible' : 'no disponible', id);
 	}
 
 	async function doneIcon(id) {
-		let productos = new ProductClient();
-		await productos.updateProduct(data[id].id, data[id]).then((response) => {
-			setChangeData(false);
-		});
+		await updateProductos(productoData[id], productoData[id].id);
+		setChangeData(false);
+		setErrorMessage(`Status:200 Registro Modificado`);
+		setTypeToast('success');
+		setOpen(true);
 	}
 
 	const columns = [
@@ -87,7 +104,10 @@ function Productos(props) {
 									<DoneIcon />
 								</IconButton>
 							</Tooltip>
-							<IconButton onClick={() => setChangeData(false)} color="secondary" aria-label="delete">
+							<IconButton
+								onClick={() => setChangeData(false)}
+								color="secondary"
+								aria-label="delete">
 								<CloseIcon />
 							</IconButton>
 						</div>
@@ -113,9 +133,9 @@ function Productos(props) {
 							value={value}
 							control={
 								<TextField
-									value={data[tableMeta.rowIndex].nombre}
-									onChange={(e) => {
-										handleChange(e, tableMeta.rowIndex);
+									value={productoData[tableMeta.rowIndex].nombre}
+									onChange={e => {
+										handleChange(e, productoData[tableMeta.rowIndex].id);
 									}}
 								/>
 							}
@@ -129,21 +149,26 @@ function Productos(props) {
 			label: 'Descripcion',
 			name: 'descripcion',
 			options: {
-				filter: true,
-			},
-		},
-		{
-			label: 'Precio de Compra',
-			name: 'precio_compra',
-			options: {
 				filter: false,
-			},
-		},
-		{
-			label: 'Precio Sugerido',
-			name: 'precio_sugerido',
-			options: {
-				filter: true,
+				customBodyRender: (value, tableMeta, updateValue) =>
+					changeData && tableMeta.rowIndex === positionRow ? (
+						<FormControlLabel
+							value={value}
+							control={
+								<TextField
+									value={productoData[tableMeta.rowIndex].descripcion}
+									onChange={e => {
+										handleChangeDescripcion(
+											e,
+											productoData[tableMeta.rowIndex].id
+										);
+									}}
+								/>
+							}
+						/>
+					) : (
+						value
+					),
 			},
 		},
 		{
@@ -154,20 +179,32 @@ function Productos(props) {
 				customBodyRender: (value, tableMeta, updateValue) => {
 					return changeData && tableMeta.rowIndex === positionRow ? (
 						<FormControlLabel
-							label={data[tableMeta.rowIndex].status === 'available' ? `Activo` : `Inactivo`}
-							value={data[tableMeta.rowIndex].status ? 'Activo' : 'Inactivo'}
+							label={
+								productoData[tableMeta.rowIndex].status === 'disponible'
+									? `Activo`
+									: `Inactivo`
+							}
+							value={
+								productoData[tableMeta.rowIndex].status ? 'Activo' : 'Inactivo'
+							}
 							control={
 								<Switch
 									color="primary"
-									checked={data[tableMeta.rowIndex].status === 'available' ? true : false}
-									value={data[tableMeta.rowIndex].status}
+									checked={
+										productoData[tableMeta.rowIndex].status === 'disponible'
+											? true
+											: false
+									}
+									value={productoData[tableMeta.rowIndex].status}
 								/>
 							}
-							onChange={(event) => {
-								const checked = event.target.value === 'available' ? false : true;
-								handleChangeChekBoc(checked, tableMeta.rowIndex);
-								console.log('data[tableMeta.rowIndex].statu', data[tableMeta.rowIndex].status);
-								console.log(data[tableMeta.rowIndex]);
+							onChange={event => {
+								const checked =
+									event.target.value === 'disponible' ? false : true;
+								handleChangeChekBoc(
+									checked,
+									productoData[tableMeta.rowIndex].id
+								);
 							}}
 						/>
 					) : (
@@ -223,14 +260,51 @@ function Productos(props) {
 		),
 	};
 
-	return loading ? (
-		<MUIDataTable title={APP_TABLAS.TABLA_PRODUCTO} data={data} columns={columns} options={options} />
-	) : (
+	const alertToast = () => (
 		<div>
-			<ErrorMessage message={APP_ERRORS.NO_DATA} />
-			<SnackBar message={errorMessage} type={'error'} open={open} setOpen={setOpen} />
+			<SnackBar
+				message={errorMessage}
+				type={typeToast}
+				open={open}
+				setOpen={setOpen}
+			/>
 		</div>
+	);
+
+	return loading ? (
+		<Fragment>
+			<MUIDataTable
+				title={APP_TABLAS.TABLA_PRODUCTO}
+				data={productoData}
+				columns={columns}
+				options={options}
+			/>
+			{alertToast()}
+		</Fragment>
+	) : (
+		<Fragment>
+			<ErrorMessage message={APP_ERRORS.NO_DATA} />
+			{alertToast()}
+		</Fragment>
 	);
 }
 
-export default Productos;
+const actions = {
+	fetchProductos,
+	fetchCategorias,
+	editProductosStatus,
+	editProductosNombre,
+	editProductosDescripcion,
+	updateProductos,
+};
+
+export function mapStateToProps(state) {
+	const { productoData, loading, updateProducto } = state.Productos;
+	return {
+		productoData,
+		loading,
+		updateProducto,
+	};
+}
+
+export default connect(mapStateToProps, actions)(Productos);

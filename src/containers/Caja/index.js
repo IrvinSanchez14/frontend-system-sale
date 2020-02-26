@@ -30,6 +30,8 @@ function Caja(Props) {
 			case 1: {
 				return <Historial />;
 			}
+			default:
+				return value;
 		}
 	};
 

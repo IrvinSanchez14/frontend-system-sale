@@ -1,37 +1,34 @@
 import React from 'react';
+import { connect } from 'react-redux';
+
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import { withStyles } from '@material-ui/core/styles';
+
 import Modal from 'components/Modal';
 import FormAddProducto from 'containers/Productos/FormularioProductos';
-import { ProductClient } from 'services/logicServices';
+import { createProducto } from 'containers/Productos/Redux/actions';
 
 const defaultToolbarStyles = {
 	iconButton: {},
 };
 
 function CustomToolbar(props) {
-	const [ visibleModal, setVisibleModal ] = React.useState(false);
-	const [ objectData, setObjectData ] = React.useState(undefined);
-	const [ buttonSave, setButtonSave ] = React.useState(false);
+	const { createProducto } = props;
+	const [visibleModal, setVisibleModal] = React.useState(false);
+	const [objectData, setObjectData] = React.useState(undefined);
 
 	const handleClick = () => {
 		setVisibleModal(true);
 	};
 
 	const addRegisterDB = async () => {
-		if (buttonSave) {
-			let productos = new ProductClient();
-			setButtonSave(false);
-			await productos.createProduct(objectData).then((response) => {
-				setVisibleModal(false);
-			});
-		}
+		createProducto(objectData);
+		setVisibleModal(false);
 	};
 
 	const { classes } = props;
-	addRegisterDB();
 
 	return (
 		<React.Fragment>
@@ -45,11 +42,20 @@ function CustomToolbar(props) {
 				visibleModal={visibleModal}
 				setVisibleModal={setVisibleModal}
 				textTitle={'Espacio para componentes'}
-				children={<FormAddProducto object={objectData} setObject={setObjectData} />}
-				setButtonSave={setButtonSave}
+				children={
+					<FormAddProducto object={objectData} setObject={setObjectData} />
+				}
+				addRegisterDB={addRegisterDB}
 			/>
 		</React.Fragment>
 	);
 }
 
-export default withStyles(defaultToolbarStyles, { name: 'CustomToolbar' })(CustomToolbar);
+const actions = {
+	createProducto,
+};
+
+export default connect(
+	null,
+	actions
+)(withStyles(defaultToolbarStyles, { name: 'CustomToolbar' })(CustomToolbar));

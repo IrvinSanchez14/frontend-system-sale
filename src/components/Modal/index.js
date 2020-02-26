@@ -10,7 +10,7 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
 
 function Modal(Props) {
-	const { visibleModal, setVisibleModal, children, setButtonSave } = Props;
+	const { visibleModal, setVisibleModal, children, addRegisterDB } = Props;
 	const theme = useTheme();
 	const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -19,7 +19,7 @@ function Modal(Props) {
 	}
 
 	function sendData() {
-		setButtonSave(true);
+		addRegisterDB();
 	}
 
 	return (
@@ -38,10 +38,17 @@ function Modal(Props) {
 			</DialogTitle>
 			<DialogContent>{children}</DialogContent>
 			<DialogActions className="dialogo">
-				<Button onClick={handleClose} className="ui buttonCancelar" color="primary">
+				<Button
+					onClick={handleClose}
+					className="ui buttonCancelar"
+					color="primary">
 					Cancelar
 				</Button>
-				<Button onClick={sendData} color="primary" className="ui buttonGuardar" autoFocus>
+				<Button
+					onClick={sendData}
+					color="primary"
+					className="ui buttonGuardar"
+					autoFocus>
 					Guardar
 				</Button>
 			</DialogActions>

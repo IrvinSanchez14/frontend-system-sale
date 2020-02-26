@@ -1,14 +1,16 @@
 import React from 'react';
 import { Form, Field } from 'react-final-form';
-import { TextField } from 'final-form-material-ui';
-import { Grid } from '@material-ui/core';
+import { TextField, Select } from 'final-form-material-ui';
+import { connect } from 'react-redux';
 
-const onSubmit = async (values) => {
-	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import { Grid, MenuItem } from '@material-ui/core';
+
+const onSubmit = async values => {
+	const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 	await sleep(300);
 	window.alert(JSON.stringify(values, 0, 2));
 };
-const validate = (values) => {
+const validate = values => {
 	const errors = {};
 	if (!values.nombre) {
 		errors.nombre = 'Required';
@@ -28,19 +30,22 @@ const validate = (values) => {
 	return errors;
 };
 
-function FormAddProducto(props) {
+function FormAddProducto(Props) {
+	const { categoriaData } = Props;
+
 	return (
 		<div style={{ padding: 16, margin: 'auto', maxWidth: 600 }}>
 			<Form
 				onSubmit={onSubmit}
 				validate={validate}
-				render={({ handleSubmit, reset, submitting, pristine, values }) => {
-					props.setObject(values);
+				render={({ handleSubmit, values }) => {
+					Props.setObject(values);
 					return (
 						<form onSubmit={handleSubmit} noValidate>
 							<Grid container alignItems="flex-start" spacing={2}>
 								<Grid item xs={6}>
 									<Field
+										variant="outlined"
 										fullWidth
 										required
 										name="nombre"
@@ -51,6 +56,7 @@ function FormAddProducto(props) {
 								</Grid>
 								<Grid item xs={12}>
 									<Field
+										variant="outlined"
 										name="descripcion"
 										fullWidth
 										required
@@ -61,36 +67,25 @@ function FormAddProducto(props) {
 								</Grid>
 								<Grid item xs={6}>
 									<Field
-										fullWidth
-										required
-										name="precio_compra"
-										component={TextField}
-										type="text"
-										label="Precio de Compra"
-									/>
-								</Grid>
-								<Grid item xs={6}>
-									<Field
-										fullWidth
-										required
-										name="precio_sugerido"
-										component={TextField}
-										type="text"
-										label="Precio Sugerido de Venta"
-									/>
-								</Grid>
-								<Grid item xs={6}>
-									<Field
-										fullWidth
-										required
+										style={{ width: '250px' }}
 										name="categoria_id"
-										component={TextField}
-										type="text"
 										label="Categoria"
-									/>
+										required
+										component={Select}
+										variant="outlined">
+										<MenuItem value={0}>Selecciona item</MenuItem>
+										{categoriaData.map(item => {
+											return (
+												<MenuItem key={item.id} value={item.id}>
+													{item.nombre}
+												</MenuItem>
+											);
+										})}
+									</Field>
 								</Grid>
 								<Grid item xs={6}>
 									<Field
+										variant="outlined"
 										fullWidth
 										required
 										name="usuario_id"
@@ -108,4 +103,11 @@ function FormAddProducto(props) {
 	);
 }
 
-export default FormAddProducto;
+export function mapStateToProps(state) {
+	const { categoriaData } = state.Categorias;
+	return {
+		categoriaData,
+	};
+}
+
+export default connect(mapStateToProps, null)(FormAddProducto);

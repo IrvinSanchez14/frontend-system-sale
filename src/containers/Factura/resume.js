@@ -59,7 +59,7 @@ function ResumenFactura(Props) {
 
 		factura.createHeader(headerFactura).then(response => {
 			factura
-				.createSalidaDetalle(response.data[0].id, 1, tableInformation)
+				.createSalidaDetalle(response.data.id, 1, tableInformation)
 				.then(sd => {
 					console.log('xxxxxxxxxxxx', sd);
 					fetchInventario();

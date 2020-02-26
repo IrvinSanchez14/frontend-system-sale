@@ -160,7 +160,7 @@ function Compras(Props) {
 		let compras = new ComprasClient();
 		await compras.createCompra(cabeceraCompra).then(response => {
 			console.log(response);
-			return createDetalle(response.data[0].id);
+			return createDetalle(response.data.id);
 		});
 	};
 

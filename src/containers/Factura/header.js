@@ -66,7 +66,6 @@ function HeaderFactura(Props) {
 	const { createObjectTable, data, loading } = Props;
 	const classes = useStyles();
 	const [value, setValue] = useState('');
-	const [objectToTable, setObjectToTable] = useState([]);
 	const [cantidadVenta, setCantidadVenta] = useState(0);
 
 	const x = [];
@@ -75,21 +74,19 @@ function HeaderFactura(Props) {
 
 	const loadList = () => {
 		if (!_.isEmpty(data)) {
-			data.forEach(d => {
-				d.registro.forEach(dr => {
-					dr.inventario.forEach(inv => {
-						const information = {
-							nombre_producto: inv.producto.nombre,
-							cantidad: inv.cantidad,
-							precio_sugerido: inv.precio_sugerido,
-							producto_id: inv.producto_id,
-							registro: inv.registro_id,
-							lote: `00${inv.registro_id}`,
-							combobox: `${inv.producto.nombre} Cantidad: ${inv.cantidad} Lote: 00${inv.registro_id}`,
-							inventario_id: inv.id,
-						};
-						x.push(information);
-					});
+			data.registro.forEach(dr => {
+				dr.inventario.forEach(inv => {
+					const information = {
+						nombre_producto: inv.producto.nombre,
+						cantidad: inv.cantidad,
+						precio_sugerido: inv.precio_sugerido,
+						producto_id: inv.producto_id,
+						registro: inv.registro_id,
+						lote: `00${inv.registro_id}`,
+						combobox: `${inv.producto.nombre} Cantidad: ${inv.cantidad} Lote: 00${inv.registro_id}`,
+						inventario_id: inv.id,
+					};
+					x.push(information);
 				});
 			});
 		}
@@ -107,7 +104,6 @@ function HeaderFactura(Props) {
 		value.precio_original = value.precio_sugerido;
 		value.precio_grabado = value.precio_sugerido;
 
-		setObjectToTable(prev => [...prev, value]);
 		createObjectTable(value);
 		setValue('');
 		setCantidadVenta(0);

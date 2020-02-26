@@ -14,7 +14,7 @@ export class ComprasClient {
 	createCompra(compra) {
 		let url = this.baseURL + '/compras';
 		let options = {
-			method: 'GET',
+			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: this.token,
@@ -22,6 +22,53 @@ export class ComprasClient {
 		};
 
 		return axios.post(url, compra, {
+			headers: options,
+		});
+	}
+
+	getCompraDetalle(id_sucursal) {
+		let url = this.baseURL + '/sucursal/{id_sucursal}/compras';
+		url = url.replace('{id_sucursal}', encodeURIComponent('' + id_sucursal));
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.get(url, {
+			headers: options,
+		});
+	}
+
+	createRegistroCompra(registro) {
+		let url = this.baseURL + '/registro_compras';
+		let options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, registro, {
+			headers: options,
+		});
+	}
+
+	updateCompra(id_compra, compra) {
+		let url = this.baseURL + '/compras/{id_compra}';
+		url = url.replace('{id_compra}', encodeURIComponent('' + id_compra));
+		let options = {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.put(url, compra, {
 			headers: options,
 		});
 	}
@@ -166,5 +213,49 @@ export class FacturaClient {
 		return axios.post(url, detalles, {
 			headers: options,
 		});
+	}
+}
+
+export class EntradaInventarioClient {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	createInventarioEntrada(entrada_inventario) {
+		let url = this.baseURL + '/entrada_inventario';
+		let options = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.post(url, entrada_inventario, {
+			headers: options,
+		});
+	}
+}
+
+export class CategoriaClient {
+	constructor(http) {
+		this.http = http;
+		this.baseURL = baseURL;
+		this.token = token;
+	}
+
+	getCategorias() {
+		let url = this.baseURL + '/categorias';
+		let options = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: this.token,
+			},
+		};
+
+		return axios.get(url, options);
 	}
 }
