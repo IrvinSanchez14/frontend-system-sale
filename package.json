@@ -13,7 +13,7 @@
     "final-form": "^4.18.7",
     "final-form-material-ui": "^0.3.0",
     "history": "^4.10.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "material-table": "^1.56.1",
     "mui-datatables": "^2.14.0",
     "prop-types": "^15.7.2",
